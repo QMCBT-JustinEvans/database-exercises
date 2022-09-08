@@ -21,6 +21,10 @@ SELECT COUNT(DISTINCT artist) FROM albums;
 SELECT MAX(release_date) FROM albums;
 SELECT MIN(release_date) FROM albums;
 
+SELECT * FROM albums
+WHERE release_date = (SELECT MAX(release_date) FROM albums)
+or release_date = (SELECT MIN(release_date) FROM albums);
+
 -- 4. Write queries to find the following information:
 -- a. The name of all albums by Pink Floyd
 -- 'The Dark Side of the Moon', 'The Wall'
@@ -69,5 +73,6 @@ SELECT name FROM albums WHERE sales < 20;
 -- f. All the albums with a genre of "Rock". Why do these query results not include albums with a genre of "Hard rock" or "Progressive rock"?
 -- They do, if you use the LIKE function and the % wildcard
 SELECT name, genre FROM albums WHERE genre LIKE '%Rock%';
+-- Wildcard has potential to bring back unintended results (bedrock, rocketship, etc..)
 
 -- 5. Be sure to add, commit, and push your work.
