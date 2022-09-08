@@ -1,3 +1,4 @@
+-- WHERE
 USE employees;
 
 SELECT * FROM employees WHERE hire_date = '1993-11-19';
@@ -15,3 +16,19 @@ SELECT * FROM zillow.properties_2016
 WHERE basementsqft IS NOT NULL;
 
 SELECT * FROM fruits_db.fruits WHERE id > 4 AND quantity > 5;
+
+-- ORDER BY
+USE farmers_market;
+
+SELECT *
+FROM customer_purchases
+ORDER BY customer_id ASC, quantity DESC;
+
+-- LIMIT
+USE employees;
+
+SELECT *
+FROM employees
+LIMIT 10 OFFSET 20;
+-- OFFSET = skip
+
