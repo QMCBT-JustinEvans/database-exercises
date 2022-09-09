@@ -10,6 +10,7 @@ WHERE last_name LIKE 'E%E';
 
 -- 3. Convert the names produced in your last query to all uppercase.
 SELECT CONCAT(UPPER(first_name), ' ', UPPER(last_name)) AS full_name
+-- SELECT UPPER CONCAT(first_name, ' ', last_name) AS full_name
 FROM employees 
 WHERE last_name LIKE 'E%E';
 
@@ -24,6 +25,12 @@ WHERE hire_date LIKE '199%'
 -- 5. Find the smallest and largest current salary from the salaries table.
 SELECT MIN(salary), MAX(salary)
 FROM salaries;
+-- CURRENT
+SELECT MIN(salary), 
+	MAX(salary)
+FROM salaries
+WHERE to_date > CURDATE();
+-- WHERE to_date LIKE '9999%';
 
 -- 6. Use your knowledge of built in SQL functions to generate a username for all of the employees. 
 -- A username should be all lowercase, 
@@ -39,10 +46,13 @@ FROM salaries;
 -- | gface_0953 | Georgi     | Facello   | 1953-09-02 |
 -- | bsimm_0664 | Bezalel    | Simmel    | 1964-06-02 |
 
-SELECT CONCAT(LOWER(SUBSTR(first_name, 1, 1)),  
-		LOWER(SUBSTR(last_name, 1, 4)),  
-		'_',
-		SUBSTR(birth_date, 6, 2),
-		SUBSTR(birth_date, 3, 2)) AS 'username', 
-    first_name, last_name, birth_date
+SELECT LOWER(
+		CONCAT(
+			SUBSTR(first_name, 1, 1),  
+			SUBSTR(last_name, 1, 4),  
+			'_',
+			SUBSTR(birth_date, 6, 2),
+			SUBSTR(birth_date, 3, 2))
+		) AS 'username', 
+	first_name, last_name, birth_date
 FROM employees;
