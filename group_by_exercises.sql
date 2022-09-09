@@ -59,7 +59,8 @@ ORDER BY first_name, gender;
 -- Are there any duplicate usernames? 
 -- BONUS: How many duplicate usernames are there?
 
--- ANSWER: 115 row(s) returned more than one first_name or last_name
+-- ANSWER: 13,251 row(s) returned more than one username
+--  		27,403 duplicates (SUM count_of_user)
 
 SELECT LOWER(
 		CONCAT(
@@ -69,19 +70,11 @@ SELECT LOWER(
 			SUBSTR(birth_date, 6, 2),
 			SUBSTR(birth_date, 3, 2))
 		) AS 'username',
-	COUNT(last_name)AS count_ln, 
-    COUNT(first_name)AS count_fn 
---     SUM(COUNT(last_name) + COUNT(first_name))
--- 	first_name, 
---     last_name, 
---     birth_date
+	COUNT(*) AS count_of_user
 FROM employees
-GROUP BY username, first_name, last_name
-Having COUNT(last_name) > 1
-		OR first_name > 1
-ORDER BY username
-
--- HAVING count_ln != count_fn;
+GROUP BY username
+Having COUNT(count_of_user) > 1
+ORDER BY count_of_user DESC;
 
 -- 9. Bonus: More practice with aggregate functions:
 
