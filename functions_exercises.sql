@@ -40,8 +40,9 @@ FROM salaries;
 -- | bsimm_0664 | Bezalel    | Simmel    | 1964-06-02 |
 
 SELECT CONCAT(LOWER(SUBSTR(first_name, 1, 1)),  
-LOWER(SUBSTR(last_name, 1, 4)),  
-'_',
-SUBSTR(birth_date, 6, 2),
-SUBSTR(birth_date, 3, 2)) AS 'username', first_name, last_name, birth_date
+		LOWER(SUBSTR(last_name, 1, 4)),  
+		'_',
+		SUBSTR(birth_date, 6, 2),
+		SUBSTR(birth_date, 3, 2)) AS 'username', 
+    first_name, last_name, birth_date
 FROM employees;
