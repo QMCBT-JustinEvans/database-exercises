@@ -2,20 +2,27 @@
 
 -- 1. Use the join_example_db. Select all the records from both the users and roles tables.
 USE join_example_db;
+SELECT *
+FROM users;
+SELECT *
+FROM roles;
 
 -- 2. Use join, left join, and right join to combine results from the users and roles tables 
 -- as we did in the lesson. Before you run each query, guess the expected number of results.
 
+-- GUESS = 4 rows
 SELECT *
 FROM users
 JOIN roles
 ON users.role_id = roles.id;
 
+-- GUESS = 6 rows
 SELECT *
 FROM users
 LEFT JOIN roles
 ON users.role_id = roles.id;
 
+-- GUESS = 5 rows
 SELECT *
 FROM users
 RIGHT JOIN roles
@@ -46,15 +53,17 @@ USE employees;
 --  Customer Service   | Yuchang Weedman
 --  Development        | Leon DasSarma
 
-SELECT departments.dept_name, 
+SELECT departments.dept_name AS 'Department Name', 
 	CONCAT(employees.first_name, 
 	' ', 
     employees.last_name) AS 'Department Manager'
 FROM departments
 LEFT JOIN dept_manager
 ON departments.dept_no = dept_manager.dept_no
+-- 	AND dept_manager.to_date LIKE '9999%'
 LEFT JOIN employees
 ON dept_manager.emp_no = employees.emp_no
+-- USING (emp_no)
 WHERE dept_manager.to_date LIKE '9999%'
 ORDER BY departments.dept_name;
 
@@ -67,10 +76,10 @@ ORDER BY departments.dept_name;
 -- Human Resources | Karsetn Sigstam
 -- Research        | Hilary Kambil
 
-SELECT departments.dept_name, 
+SELECT departments.dept_name AS 'Department Name', 
 	CONCAT(employees.first_name, 
 	' ', 
-    employees.last_name) AS 'Department Manager'
+    employees.last_name) AS 'Manager Name'
 FROM departments
 LEFT JOIN dept_manager
 ON departments.dept_no = dept_manager.dept_no
@@ -95,8 +104,10 @@ ORDER BY departments.dept_name;
 SELECT titles.title AS Title, 
 	COUNT(dept_emp.emp_no) AS Count
 FROM dept_emp
-LEFT JOIN employees
-ON dept_emp.emp_no = employees.emp_no
+
+-- Didn't need to join employees
+-- LEFT JOIN employees
+-- ON dept_emp.emp_no = employees.emp_no
 
 LEFT JOIN departments
 ON dept_emp.dept_no = departments.dept_no
@@ -128,8 +139,9 @@ SELECT departments.dept_name AS 'Department Name',
 	CONCAT(employees.first_name,
 		' ',
         employees.last_name) AS 'Name',
-    salaries.salary AS 'Salary'
+    CONCAT('$ ', FORMAT(salaries.salary, 2)) AS 'Salary'
 FROM dept_manager
+
 LEFT JOIN employees
 ON dept_manager.emp_no = employees.emp_no
 
@@ -138,9 +150,10 @@ ON dept_manager.dept_no = departments.dept_no
 
 LEFT JOIN salaries
 ON dept_manager.emp_no = salaries.emp_no
+	AND salaries.to_date LIKE '9999%'
 
 WHERE dept_manager.to_date LIKE '9999%'
-	AND salaries.to_date LIKE '9999%'
+-- 	AND salaries.to_date LIKE '9999%'
 ORDER BY departments.dept_name;
 
 -- 6. Find the number of current employees in each department.
@@ -163,14 +176,17 @@ SELECT departments.dept_no,
 	departments.dept_name,
     COUNT(dept_emp.emp_no) AS num_employees
 FROM departments
+
 LEFT JOIN dept_emp
 ON departments.dept_no = dept_emp.dept_no
+	AND dept_emp.to_date LIKE '9999%'
 
 LEFT JOIN employees
 ON dept_emp.emp_no = employees.emp_no
 
-WHERE dept_emp.to_date LIKE '9999%'
-GROUP BY departments.dept_no
+-- WHERE dept_emp.to_date LIKE '9999%'
+GROUP BY departments.dept_no, departments.dept_name
+-- Always GROUP BY non aggregated fields
 ORDER BY departments.dept_no;
 
 -- 7. Which department has the highest average salary? Hint: Use current not historic information.
@@ -182,8 +198,9 @@ ORDER BY departments.dept_no;
 -- +-----------+----------------+
 
 SELECT departments.dept_name,
-	AVG(salaries.salary) AS average_salary
+	ROUND(AVG(salaries.salary), 2) AS average_salary
 FROM departments
+
 LEFT JOIN dept_emp
 ON departments.dept_no = dept_emp.dept_no
 
@@ -192,7 +209,7 @@ ON dept_emp.emp_no = salaries.emp_no
 
 WHERE dept_emp.to_date LIKE '9999%'
 	AND salaries.to_date LIKE '9999%'
-GROUP BY departments.dept_no
+GROUP BY departments.dept_name
 ORDER BY average_salary DESC
 LIMIT 1;
 
@@ -207,14 +224,18 @@ LIMIT 1;
 SELECT employees.first_name,
 	employees.last_name
 FROM employees
+
 LEFT JOIN dept_emp
 ON employees.emp_no = dept_emp.emp_no
+-- USING(emp_no)
 
 LEFT JOIN departments
 ON dept_emp.dept_no = departments.dept_no
+-- USING(dept_no)
 
 LEFT JOIN salaries
 ON employees.emp_no = salaries.emp_no
+-- USING(emp_no)
 
 WHERE departments.dept_name = 'Marketing'
 	AND dept_emp.to_date LIKE '9999%'
@@ -235,6 +256,7 @@ SELECT employees.first_name,
 	salaries.salary,
     departments.dept_name
 FROM dept_manager
+
 LEFT JOIN employees
 ON dept_manager.emp_no = employees.emp_no
 
@@ -296,15 +318,74 @@ ORDER BY average_salary DESC;
 -- Employee Name | Department Name  |  Manager Name
 -- --------------|------------------|-----------------
 --  Huan Lortz   | Customer Service | Yuchang Weedman
- 
+
 SELECT CONCAT(employees.first_name,
 			' ',
 			employees.last_name) AS 'Employee Name',
 		departments.dept_name AS 'Department Name',
-		CONCAT(employees.first_name,
-			' ',
-			employees.last_name) AS 'Manager Name'    
+        employees.emp_no,
+		(SELECT employees.last_name 
+			WHERE dept_manager.emp_no > 0) AS 'Manager Name',
+		dept_manager.emp_no AS 'Manager_emp_no',
+        (CASE 
+			WHEN dept_manager.emp_no > 0 then employees.last_name
+ 			ELSE NULL
+ 			END) AS Manager_last_name
 
+-- USING MATCH
+--         (SELECT employees.last_name
+-- 				FROM employees
+--                 WHERE MATCH (dept_manager.emp_no) AGAINST(employees.emp_no)) AS 'Manager LN'
+
+-- USING CASE
+-- 		(CASE 
+-- 			WHEN dept_manager.emp_no > 0 then employees.last_name
+--  		ELSE NULL
+--  		END) AS Manager_last_name
+
+FROM dept_emp
+
+LEFT JOIN employees
+ON employees.emp_no = dept_emp.emp_no
+	AND dept_emp.to_date LIKE '9999%'
+
+LEFT JOIN dept_manager
+ON dept_emp.dept_no = dept_manager.dept_no
+	AND dept_manager.to_date LIKE '9999%'
+
+LEFT JOIN departments
+ON dept_emp.dept_no = departments.dept_no
+
+-- TEST one manager and one employee with manager
+WHERE dept_emp.emp_no = '466852' 
+ 		OR dept_emp.emp_no = '111939';
+
+-- 12. Bonus Who is the highest paid employee within each department.
+SELECT departments.dept_name AS 'Department',
+	CONCAT(employees.first_name, ' ', employees.last_name)AS 'Employee Name',
+	salaries.salary AS 'Salary'
+FROM departments
+
+LEFT JOIN dept_emp
+ON departments.dept_no = dept_emp.dept_no
+	AND dept_emp.to_date LIKE '9999%'
+
+LEFT JOIN salaries
+ON dept_emp.emp_no = salaries.emp_no
+	AND salaries.to_date LIKE '9999%'
+
+LEFT JOIN employees
+ON dept_emp.emp_no = employees.emp_no
+
+-- WHERE MAX(salaries.salary)
+GROUP BY employees.first_name, employees.last_name, departments.dept_no, salaries.salary
+ORDER BY Salary DESC
+LIMIT 1;
+
+-- 12. TRY THIS
+SELECT departments.dept_name AS 'Department', 
+	CONCAT(employees.first_name, ' ', employees.last_name) AS 'Name',
+	FORMAT(MAX(salaries.salary), 0) AS 'MAX_Salary'
 FROM departments
 
 LEFT JOIN dept_emp
@@ -313,8 +394,8 @@ ON departments.dept_no = dept_emp.dept_no
 LEFT JOIN salaries
 ON dept_emp.emp_no = salaries.emp_no
 
-GROUP BY departments.dept_no
-ORDER BY average_salary DESC; 
+LEFT JOIN employees
+ON dept_emp.emp_no = employees.emp_no
 
--- 12. Bonus Who is the highest paid employee within each department.
-
+GROUP BY departments.dept_no, employees.first_name, employees.last_name
+ORDER BY MAX_Salary DESC;
