@@ -361,14 +361,20 @@ WHERE dept_emp.emp_no = '466852'
  		OR dept_emp.emp_no = '111939';
 
 -- 12. Bonus Who is the highest paid employee within each department.
+
+
+
+-- PREVIOUS ATTEMPTS prior to learning SubQueries
 SELECT departments.dept_name AS 'Department',
 	CONCAT(employees.first_name, ' ', employees.last_name)AS 'Employee Name',
-	salaries.salary AS 'Salary'
+	CONCAT('$ ', FORMAT(salaries.salary, 2)) AS 'Salary'
 FROM departments
 
 LEFT JOIN dept_emp
 ON departments.dept_no = dept_emp.dept_no
 	AND dept_emp.to_date LIKE '9999%'
+    AND (SELECT MAX(salary)
+			FROM salaries)
 
 LEFT JOIN salaries
 ON dept_emp.emp_no = salaries.emp_no
@@ -385,8 +391,11 @@ LIMIT 1;
 -- 12. TRY THIS
 SELECT departments.dept_name AS 'Department', 
 	CONCAT(employees.first_name, ' ', employees.last_name) AS 'Name',
-	FORMAT(MAX(salaries.salary), 0) AS 'MAX_Salary'
-FROM departments
+	FORMAT(MAX(salaries.salary), 0) AS 'Salary'
+FROM employees
+
+LEFT JOIN departments
+ON departments.dept_no = dept_emp.dept_no
 
 LEFT JOIN dept_emp
 ON departments.dept_no = dept_emp.dept_no
